@@ -74,32 +74,32 @@ namespace nonlinear
         {
             Vector3 h = PenaltiesGradH(A, B, C);
             Vector3 g = PenaltyGradG(A, B, C);
-            Vector3 grad = -(new Vector3(0.125f * B * C, 0.125f * A * C, 0.125f * A * B)); // V
-            return grad + (1 / r) * (g + h);
+            Vector3 grad = (new Vector3(0.125f * B * C, 0.125f * A * C, 0.125f * A * B)); // V
+            return grad - (1 / r) * (g + h);
         }
 
         private static float epsilon = 0.00001f;
-        private static float epsilon2 = 0.0005f;
-        private static float gamma = 0.8f;
-        private static float rInit = 3f;
+        private static float epsilon2 = 0.000005f;
+        private static float gamma = 0.3f;
+        private static float rInit = 1f;
         private static void GradientDescent(Vector3 startPoint)
         {
-            float k = 0.5f;
+            float k = 1.1f;// 0.5f;
             int n = 0;
             float r = rInit;
 
             Vector3 pBefore = new Vector3(-100, -100, 100);
-            float V = 0;
             Vector3 pos = startPoint;
 
             Console.WriteLine(pos);
             while (true)
             {
-                V = VolumeSq(pos.X, pos.Y, pos.Z);
-                pos = pos - gamma * Gradient(pos.X, pos.Y, pos.Z, r);
-                
-                r *= k; 
-                gamma *= k;
+                float V = VolumeSq(pos.X, pos.Y, pos.Z);
+                pos = pos + gamma * Gradient(pos.X, pos.Y, pos.Z, r);
+
+                //r *= k; 
+                r /= k;
+                gamma /= k;
 
                 Console.WriteLine(pos + "   -->   " + V + " r -> " + r);
 
@@ -112,7 +112,7 @@ namespace nonlinear
 
 
         //  0.9 0.5 0.3
-        private static Vector3 p0 = new Vector3(0.4f, 0.4f, 0.4f);
+        private static Vector3 p0 = new Vector3(0.3f, 0.4f, 0.4f);
         private static Vector3 p4 = new Vector3(-1f, 0, 0);
 
         private static Vector3 p1 = new Vector3(0, 0, 0);
@@ -120,7 +120,7 @@ namespace nonlinear
         private static Vector3 p3 = new Vector3(0.9f, 0.5f, 0.3f);
         static void Main(string[] args)
         {
-            GradientDescent(p2);
+            GradientDescent(p4);
         }
     }
 }
