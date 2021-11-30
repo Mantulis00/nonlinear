@@ -34,15 +34,12 @@ namespace nonlinear
       
         private static Vector3 PenaltyGradG(float A, float B, float C)
         {
-            float val = GVal(A, B, C); // (A + B + C - 1f)^2 => 2(A + B + C - 1f)
-            //if (Math.Abs(val) < epsilon) return new Vector3(0, 0, 0);
+            float val = GVal(A, B, C);
             return new Vector3(2f*val, 2f*val, 2f*val);
         }
 
         private static float HVal(float x)
         {
-            //x >= 0 => A >0 B> 0 C>0
-            //h(X) = B => B - 0.5 <= 0
             return -x; // -x <= 0 -A <= 0 // -B<=0
         }
       
@@ -70,21 +67,24 @@ namespace nonlinear
         }
 
 
-        private static Vector3 Gradient(float A, float B, float C, float r)
+        private static Vector3 Gradient(float A, float B, float C, float r, float gamma)
         {
             Vector3 h = PenaltiesGradH(A, B, C);
             Vector3 g = PenaltyGradG(A, B, C);
-            Vector3 grad = (new Vector3(0.125f * B * C, 0.125f * A * C, 0.125f * A * B)); // V
-            return grad - (1 / r) * (g + h);
+            Vector3 grad = (new Vector3(B * C, A * C, A * B))*0.125f ; // V
+
+           // Console.WriteLine(grad);
+           // Console.WriteLine("g     " + g);
+            return -grad + (1 / r) * (g + h);
         }
 
         private static float epsilon = 0.00001f;
         private static float epsilon2 = 0.000005f;
-        private static float gamma = 0.3f;
-        private static float rInit = 1f;
+        private static float gamma = 0.6f;
+        private static float rInit = 3;
         private static void GradientDescent(Vector3 startPoint)
         {
-            float k = 1.1f;// 0.5f;
+            float k = 2f;// 0.5f;
             int n = 0;
             float r = rInit;
 
@@ -95,7 +95,7 @@ namespace nonlinear
             while (true)
             {
                 float V = VolumeSq(pos.X, pos.Y, pos.Z);
-                pos = pos + gamma * Gradient(pos.X, pos.Y, pos.Z, r);
+                pos = pos - gamma * Gradient(pos.X, pos.Y, pos.Z, r, gamma);
 
                 //r *= k; 
                 r /= k;
@@ -118,9 +118,10 @@ namespace nonlinear
         private static Vector3 p1 = new Vector3(0, 0, 0);
         private static Vector3 p2 = new Vector3(1, 1, 1);
         private static Vector3 p3 = new Vector3(0.9f, 0.5f, 0.3f);
+        private static Vector3 p5 = new Vector3(0.5f, 0.5f, 0.9f);
         static void Main(string[] args)
         {
-            GradientDescent(p4);
+            GradientDescent(p3);
         }
     }
 }
